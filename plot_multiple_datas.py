@@ -19,6 +19,4 @@ d = add_plot(d, data3, xsize, ysize)
 d = add_plot(d, data4, xsize, ysize)
 d = add_plot(d, data+data2+data3+data4-round(3*ysize/2),xsize, ysize)
 
-d = add_axes(d, xsize, ysize)
-            
 lcdprint(d)

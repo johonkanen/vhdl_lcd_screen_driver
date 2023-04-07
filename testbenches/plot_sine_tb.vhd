@@ -64,12 +64,10 @@ begin
     begin
         if rising_edge(simulator_clock) then
             simulation_counter <= simulation_counter + 1;
-            -- write(row , integer(round(sin(real(simulation_counter)/480.0*15.0*math_pi)*160.0*0.9+160.0)), left, 4);
             if simulation_counter < 480 then
                 write(row , sinearray(simulation_counter));
                 writeline(f , row);
             end if;
-
 
         end if; -- rising_edge
     end process stimulus;	
