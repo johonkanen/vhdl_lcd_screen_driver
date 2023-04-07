@@ -4,3 +4,4 @@ __pycache__
 *.testi
 temp/
 *.cf
+*.swo
