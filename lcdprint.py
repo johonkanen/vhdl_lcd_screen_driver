@@ -8,7 +8,7 @@ def lcdprint(data_in):
     plt.imshow(data_in, origin='upper')
     plt.show()
 
-def make_screen_plot(figure, input_buffer, xsize, ysize):
+def add_plot(figure, input_buffer, xsize, ysize):
     for y in range(ysize):
         for x in range(xsize):
             if y == input_buffer[x]:
@@ -22,7 +22,10 @@ def create_axes(figure, xsize, ysize):
             if x == xsize/2 or x == xsize/2+1:
                 figure[y,x] = 1.0
 
-    figure[[160]] = np.ones([1,480])
-    figure[[161]] = np.ones([1,480])
+    figure[[160]] = np.ones([1,xsize])
+    figure[[161]] = np.ones([1,xsize])
 
     return figure
+
+def testi(data_in, scale, xsize, ysize):
+    return  ysize - np.round(data_in * ysize/2 * scale + ysize/2)

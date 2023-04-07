@@ -1,16 +1,20 @@
 from lcdprint import lcdprint
-from lcdprint import make_screen_plot
+from lcdprint import add_plot
 from lcdprint import create_axes
+from lcdprint import testi
 import numpy as np
 
 xsize = 480
 ysize = 320
 
-data = 320 - np.round(np.sin(np.linspace(0, 3*np.pi,480))*160*0.9+160)
-data2 = 320 - np.round(np.sin(np.linspace(0, 9*np.pi,480))*160*0.3+160)
-d = np.zeros([320,480])
-d = make_screen_plot(d, data, xsize, ysize)
-d = make_screen_plot(d, data2, xsize, ysize)
+data  = testi(np.sin(np.linspace(0, 3  * np.pi,xsize)),0.9, xsize, ysize)
+data2 = testi(np.sin(np.linspace(0, 9  * np.pi,xsize)),0.3, xsize, ysize)
+data3 = testi(np.sin(np.linspace(0, 15 * np.pi,xsize)),0.1, xsize, ysize)
+
+d = np.zeros([ysize,xsize])
+d = add_plot(d, data, xsize, ysize)
+d = add_plot(d, data2, xsize, ysize)
+d = add_plot(d, data3, xsize, ysize)
 
 d = create_axes(d, xsize, ysize)
             
