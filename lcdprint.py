@@ -8,6 +8,13 @@ def lcdprint(data_in):
     plt.imshow(data_in, origin='upper')
     plt.show()
 
+def stream_lcd(data_in, xsize, ysize):
+    lcdprint(np.resize(data_in,[ysize, xsize])) 
+
+def stream_from_file_to_lcd(filename, xsize, ysize):
+    testi = np.loadtxt(filename)
+    stream_lcd(testi, xsize, ysize)
+
 def add_plot(figure, input_buffer, xsize, ysize):
     for y in range(ysize):
         for x in range(xsize):
@@ -16,14 +23,15 @@ def add_plot(figure, input_buffer, xsize, ysize):
 
     return figure
 
-def create_axes(figure, xsize, ysize):
+def add_axes(figure, xsize, ysize):
     for y in range(ysize):
         for x in range(xsize):
-            if x == xsize/2 or x == xsize/2+1:
+            if x == round(xsize/2) or x == round(xsize/2)+1:
                 figure[y,x] = 1.0
 
-    figure[[160]] = np.ones([1,xsize])
-    figure[[161]] = np.ones([1,xsize])
+    r_ysize = round(ysize/2)
+    figure[[r_ysize]] = np.ones([1,xsize])
+    figure[[r_ysize+1]] = np.ones([1,xsize])
 
     return figure
 
