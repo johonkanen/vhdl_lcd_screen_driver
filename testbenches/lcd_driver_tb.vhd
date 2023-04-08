@@ -11,11 +11,37 @@ package lcd_driver_pkg is
 
     constant init_lcd_driver : lcd_driver_input_record := (0, false);
 
-end package lcd_driver_pkg;
+    procedure setup_lcd_driver (
+        signal self : out lcd_driver_input_record);
 
+    procedure transmit_pixel (
+        signal self : out lcd_driver_input_record;
+        pixel : in integer);
+
+end package lcd_driver_pkg;
+--------------------------------------------------
 package body lcd_driver_pkg is
 
+    procedure setup_lcd_driver
+    (
+        signal self : out lcd_driver_input_record
+    ) is
+    begin
+        self.write_is_requested <= false;
+    end setup_lcd_driver;
+
+    procedure transmit_pixel
+    (
+        signal self : out lcd_driver_input_record;
+        pixel : in integer
+    ) is
+    begin
+        self.pixel_to_be_written <= pixel;
+        self.write_is_requested <= true;
+    end transmit_pixel;
+
 end package body lcd_driver_pkg;
+------------------------------------------------------------------------
 ------------------------------------------------------------------------
 library ieee, std;
     use ieee.std_logic_1164.all;
@@ -91,15 +117,9 @@ architecture vunit_simulation of lcd_driver_tb is
     -- simulation specific signals ----
 
     signal pixel_position_counter : pixel_position_counter_record := init_pixel_position_counter;
-    signal xpos : natural range 0 to xmax := 0;
-    signal ypos : natural range 0 to ymax := 0;
-
     signal sinearray : intarray := init_intarray;
-
     signal has_run : boolean := false;
-
-    signal pixel_to_be_written : integer := 0;
-    signal write_is_requested : boolean := false;
+    signal lcd_driver_in : lcd_driver_input_record := init_lcd_driver;
 
 begin
 
@@ -108,7 +128,7 @@ begin
     begin
         test_runner_setup(runner, runner_cfg);
         wait for simtime_in_clocks*clock_period;
-        check(xpos = xmax and ypos = ymax, "did not stop at maximum");
+        check(get_x(pixel_position_counter) = xmax and get_y(pixel_position_counter) = ymax, "did not stop at maximum");
         check(has_run, "counter was never started");
         test_runner_cleanup(runner); -- Simulation ends here
         wait;
@@ -125,26 +145,22 @@ begin
         if rising_edge(simulator_clock) then
             simulation_counter <= simulation_counter + 1;
 
-            write_is_requested <= false;
+            create_pixel_position_counter(pixel_position_counter);
+            setup_lcd_driver(lcd_driver_in);
 
             if get_x(pixel_position_counter) = 0 and get_y(pixel_position_counter) = 0 then
                 has_run <= true;
             end if;
-
-            create_pixel_position_counter(pixel_position_counter);
-            xpos <= get_x(pixel_position_counter);
-            ypos <= get_y(pixel_position_counter);
 
             if simulation_counter = 15 then
                 request_pixel_counter(pixel_position_counter);
             end if;
 
             if pixel_position_is_updated(pixel_position_counter) then
-                write_is_requested <= true;
                 if get_y(pixel_position_counter) = sinearray(get_x(pixel_position_counter)) then
-                    pixel_to_be_written <= 1;
+                    transmit_pixel(lcd_driver_in, 1);
                 else
-                    pixel_to_be_written <= 0;
+                    transmit_pixel(lcd_driver_in, 0);
                 end if;
             end if;
 
@@ -152,6 +168,6 @@ begin
     end process stimulus;	
 ------------------------------------------------------------------------
     u_lcr_driver : entity work.lcd_driver
-    port map(simulator_clock, (pixel_to_be_written, write_is_requested));
+    port map(simulator_clock, lcd_driver_in);
 ------------------------------------------------------------------------
 end vunit_simulation;
