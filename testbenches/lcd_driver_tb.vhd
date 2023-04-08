@@ -39,7 +39,7 @@ begin
         test_runner_setup(runner, runner_cfg);
         wait for simtime_in_clocks*clock_period;
         check(get_x(pixel_position_counter) = xmax and get_y(pixel_position_counter) = ymax, "did not stop at maximum, " & 
-        " y = " &  integer'image(get_x(pixel_position_counter)) & 
+        " x = " &  integer'image(get_x(pixel_position_counter)) & 
         " y = " & integer'image(get_y(pixel_position_counter))
         );
         check(has_run, "counter was never started");
