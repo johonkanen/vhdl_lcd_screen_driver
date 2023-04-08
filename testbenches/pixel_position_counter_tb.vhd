@@ -11,15 +11,19 @@ package lcd_pixel_driver_pkg is
         xpos : integer range 0 to xmax;
         ypos : integer range 0 to ymax;
         is_requested : boolean;
+        is_updated : boolean;
     end record;
 
-    constant init_pixel_position_counter : pixel_position_counter_record := (xmax,ymax, false);
+    constant init_pixel_position_counter : pixel_position_counter_record := (xmax,ymax, false, false);
     
     procedure create_pixel_position_counter (
         signal self : inout pixel_position_counter_record);
 
     procedure request_pixel_counter (
         signal self : out pixel_position_counter_record);
+
+    function pixel_position_is_updated ( self : pixel_position_counter_record)
+        return boolean;
 
     function get_x ( self : pixel_position_counter_record)
         return integer;
@@ -41,7 +45,9 @@ package body lcd_pixel_driver_pkg is
     ) is
     begin
         self.is_requested <= false;
+        self.is_updated <= false;
         if not ((self.xpos = xmax) and (self.ypos = ymax)) or self.is_requested then
+            self.is_updated <= true;
             if self.xpos = xmax then
                 procedure_increment_and_wrap(self.ypos, ymax);
             end if;
@@ -77,6 +83,17 @@ package body lcd_pixel_driver_pkg is
     begin
         return self.ypos;
     end get_y;
+------------------------------------------------------------------------
+    function pixel_position_is_updated
+    (
+        self : pixel_position_counter_record
+    )
+    return boolean
+    is
+    begin
+        return self.is_updated;
+    end pixel_position_is_updated;
+------------------------------------------------------------------------
 
     procedure procedure_increment_and_wrap
     (
@@ -119,26 +136,24 @@ architecture vunit_simulation of pixel_position_counter_tb is
     -----------------------------------
     -- simulation specific signals ----
 
-    constant xmax : integer := 479;
-    constant ymax : integer := 319;
-
     signal pixel_position_counter : pixel_position_counter_record := init_pixel_position_counter;
     signal xpos : natural range 0 to xmax := 0;
     signal ypos : natural range 0 to ymax := 0;
 
     type intarray is array (integer range 0 to 479) of integer;
-
+    ------------------------------------------------------------------------
     function init_intarray return intarray
     is
         variable return_value : intarray;
         constant length : real := real(intarray'length);
     begin
         for i in intarray'range loop
-            return_value(i) := integer(round(sin(real(i)/length*15.0*math_pi)*160.0*0.9+160.0));
+            return_value(i) := 320 - integer(round(sin(real(i)/length*2.0*math_pi)*160.0*0.9+160.0));
         end loop;
         return return_value;
         
     end init_intarray;
+    ------------------------------------------------------------------------
 
     signal sinearray : intarray := init_intarray;
 
@@ -181,8 +196,8 @@ begin
                 request_pixel_counter(pixel_position_counter);
             end if;
 
-            if simulation_counter < 480 then
-                write(row , sinearray(simulation_counter));
+            if pixel_position_is_updated(pixel_position_counter) then
+                write(row , sinearray(get_x(pixel_position_counter)));
                 writeline(f , row);
             end if;
 
