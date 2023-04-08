@@ -197,7 +197,11 @@ begin
             end if;
 
             if pixel_position_is_updated(pixel_position_counter) then
-                write(row , sinearray(get_x(pixel_position_counter)));
+                if get_y(pixel_position_counter) = sinearray(get_x(pixel_position_counter)) then
+                    write(row , 1);
+                else
+                    write(row , 0);
+                end if;
                 writeline(f , row);
             end if;
 

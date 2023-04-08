@@ -8,6 +8,4 @@ ysize = 320
 
 d = np.zeros([ysize,xsize])
 data_from_vhdl = np.loadtxt("temp/pixel_image_stream_from_vhdl.txt")
-d = add_plot(d, data_from_vhdl, xsize, ysize)
-
-stream_lcd(d, xsize, ysize)
+stream_lcd(data_from_vhdl, xsize, ysize)
