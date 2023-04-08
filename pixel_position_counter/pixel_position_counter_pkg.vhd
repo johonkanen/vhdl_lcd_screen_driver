@@ -22,6 +22,10 @@ package lcd_pixel_driver_pkg is
     procedure create_pixel_position_counter (
         signal self : inout pixel_position_counter_record);
 
+    procedure create_pixel_position_counter (
+        signal self : inout pixel_position_counter_record;
+        calculate : boolean);
+
     procedure request_pixel_counter (
         signal self : out pixel_position_counter_record);
 
@@ -56,6 +60,27 @@ package body lcd_pixel_driver_pkg is
                 procedure_increment_and_wrap(self.ypos, ymax);
             end if;
             procedure_increment_and_wrap(self.xpos, xmax);
+        end if;
+        
+    end create_pixel_position_counter;
+
+    procedure create_pixel_position_counter
+    (
+        signal self : inout pixel_position_counter_record;
+        calculate : boolean
+    ) is
+    begin
+        self.is_updated <= false;
+        self.is_requested <= false;
+        if self.is_requested or calculate then
+            if not ((self.xpos = xmax) and (self.ypos = ymax)) or self.is_requested then
+                if self.xpos = xmax then
+                    procedure_increment_and_wrap(self.ypos, ymax);
+                end if;
+                procedure_increment_and_wrap(self.xpos, xmax);
+                self.is_updated <= true;
+            end if;
+
         end if;
         
     end create_pixel_position_counter;
@@ -120,7 +145,7 @@ package body lcd_pixel_driver_pkg is
         constant length : real := real(intarray'length);
     begin
         for i in intarray'range loop
-            return_value(i) := 320 - integer(round(sin(real(i)/length*2.0*math_pi)*160.0*0.9+160.0));
+            return_value(i) := 320 - integer(round(sin(real(i)/length*3.0*math_pi)*160.0*0.9+160.0));
         end loop;
         return return_value;
         

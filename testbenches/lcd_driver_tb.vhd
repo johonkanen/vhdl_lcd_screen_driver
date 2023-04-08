@@ -80,6 +80,8 @@ end entity lcd_driver;
 
 architecture write_to_file of lcd_driver is
 
+    signal delay_counter : integer range 0 to 7 := 0;
+
 
 begin
 
@@ -102,8 +104,18 @@ begin
         
     begin
         if rising_edge(clock) then
+            lcd_driver_out.pixel_has_been_written <= false;
             if lcd_driver_in.write_is_requested then
                 transmit_pixel(f,lcd_driver_in.pixel_to_be_written);
+                delay_counter <= 3;
+            end if;
+
+            if delay_counter > 0 then
+                delay_counter <= delay_counter - 1;
+            end if;
+
+            if delay_counter = 1 then
+                lcd_driver_out.pixel_has_been_written <= true;
             end if;
         end if; --rising_edge
     end process drive_a_pixel;	
@@ -130,7 +142,7 @@ end;
 architecture vunit_simulation of lcd_driver_tb is
 
     constant clock_period      : time    := 1 ns;
-    constant simtime_in_clocks : integer := 480*320+100;
+    constant simtime_in_clocks : integer := 480*320*8;
     
     signal simulator_clock     : std_logic := '0';
     signal simulation_counter  : natural   := 0;
@@ -150,7 +162,10 @@ begin
     begin
         test_runner_setup(runner, runner_cfg);
         wait for simtime_in_clocks*clock_period;
-        check(get_x(pixel_position_counter) = xmax and get_y(pixel_position_counter) = ymax, "did not stop at maximum");
+        check(get_x(pixel_position_counter) = xmax and get_y(pixel_position_counter) = ymax, "did not stop at maximum, " & 
+        " y = " &  integer'image(get_x(pixel_position_counter)) & 
+        " y = " & integer'image(get_y(pixel_position_counter))
+        );
         check(has_run, "counter was never started");
         test_runner_cleanup(runner); -- Simulation ends here
         wait;
@@ -160,23 +175,10 @@ begin
 ------------------------------------------------------------------------
 
     stimulus : process(simulator_clock)
-
-        variable pixel_value : integer;
-
     begin
         if rising_edge(simulator_clock) then
-            simulation_counter <= simulation_counter + 1;
-
-            create_pixel_position_counter(pixel_position_counter);
+            create_pixel_position_counter(pixel_position_counter, lcd_driver_is_ready(lcd_driver_out));
             setup_lcd_driver(lcd_driver_in);
-
-            if get_x(pixel_position_counter) = 0 and get_y(pixel_position_counter) = 0 then
-                has_run <= true;
-            end if;
-
-            if simulation_counter = 15 then
-                request_pixel_counter(pixel_position_counter);
-            end if;
 
             if pixel_position_is_updated(pixel_position_counter) then
                 if get_y(pixel_position_counter) = sinearray(get_x(pixel_position_counter)) then
@@ -186,6 +188,18 @@ begin
                 end if;
             end if;
 
+            ------------------------------
+            -- simulator configuration
+            ------------------------------
+            simulation_counter <= simulation_counter + 1;
+            if get_x(pixel_position_counter) = 0 and get_y(pixel_position_counter) = 0 then
+                has_run <= true;
+            end if;
+
+            if simulation_counter = 15 then
+                request_pixel_counter(pixel_position_counter);
+            end if;
+            ------------------------------
         end if; -- rising_edge
     end process stimulus;	
 ------------------------------------------------------------------------
