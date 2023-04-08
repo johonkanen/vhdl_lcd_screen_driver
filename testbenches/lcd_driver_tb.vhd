@@ -1,3 +1,68 @@
+library ieee, std;
+    use ieee.std_logic_1164.all;
+    use ieee.numeric_std.all;
+------------------------------------------------------------------------
+package lcd_driver_pkg is
+
+    type lcd_driver_input_record is record
+        pixel_to_be_written : integer;
+        write_is_requested : boolean;
+    end record;
+
+    constant init_lcd_driver : lcd_driver_input_record := (0, false);
+
+end package lcd_driver_pkg;
+
+package body lcd_driver_pkg is
+
+end package body lcd_driver_pkg;
+------------------------------------------------------------------------
+library ieee, std;
+    use ieee.std_logic_1164.all;
+    use ieee.numeric_std.all;
+
+    use work.lcd_driver_pkg.all;
+
+entity lcd_driver is
+    port (
+        clock : in std_logic;
+        lcd_driver_in : in lcd_driver_input_record 
+    );
+end entity lcd_driver;
+
+
+architecture write_to_file of lcd_driver is
+
+
+begin
+
+    drive_a_pixel : process(clock)
+        use std.textio.all;
+
+        file f : text open write_mode is "pixel_image_stream_from_lcd_driver.txt";
+        ------------------------------------------------------------------------
+        procedure transmit_pixel
+        (
+            file file_handle : text;
+            pixel : in integer
+        ) is
+            variable row : line;
+        begin
+            write(row , pixel);
+            writeline(file_handle , row);
+        end transmit_pixel;
+        ------------------------------------------------------------------------
+        
+    begin
+        if rising_edge(clock) then
+            if lcd_driver_in.write_is_requested then
+                transmit_pixel(f,lcd_driver_in.pixel_to_be_written);
+            end if;
+        end if; --rising_edge
+    end process drive_a_pixel;	
+
+
+end write_to_file;
 ------------------------------------------------------------------------
 LIBRARY ieee, std; 
     USE ieee.NUMERIC_STD.all  ; 
@@ -6,15 +71,16 @@ LIBRARY ieee, std;
     use std.textio.all;
 
     use work.lcd_pixel_driver_pkg.all;
+    use work.lcd_driver_pkg.all;
 
 library vunit_lib;
 context vunit_lib.vunit_context;
 
-entity pixel_position_counter_tb is
+entity lcd_driver_tb is
   generic (runner_cfg : string);
 end;
 
-architecture vunit_simulation of pixel_position_counter_tb is
+architecture vunit_simulation of lcd_driver_tb is
 
     constant clock_period      : time    := 1 ns;
     constant simtime_in_clocks : integer := 480*320+100;
@@ -31,6 +97,9 @@ architecture vunit_simulation of pixel_position_counter_tb is
     signal sinearray : intarray := init_intarray;
 
     signal has_run : boolean := false;
+
+    signal pixel_to_be_written : integer := 0;
+    signal write_is_requested : boolean := false;
 
 begin
 
@@ -50,25 +119,13 @@ begin
 
     stimulus : process(simulator_clock)
 
-        file f : text open write_mode is "pixel_image_stream_from_vhdl.txt";
-        ------------------------------------------------------------------------
-        procedure transmit_pixel
-        (
-            file file_handle : text;
-            pixel : in integer
-        ) is
-            variable row : line;
-        begin
-            write(row , pixel);
-            writeline(file_handle , row);
-        end transmit_pixel;
-        ------------------------------------------------------------------------
-
         variable pixel_value : integer;
 
     begin
         if rising_edge(simulator_clock) then
             simulation_counter <= simulation_counter + 1;
+
+            write_is_requested <= false;
 
             if get_x(pixel_position_counter) = 0 and get_y(pixel_position_counter) = 0 then
                 has_run <= true;
@@ -83,15 +140,18 @@ begin
             end if;
 
             if pixel_position_is_updated(pixel_position_counter) then
+                write_is_requested <= true;
                 if get_y(pixel_position_counter) = sinearray(get_x(pixel_position_counter)) then
-                    pixel_value := 1;
+                    pixel_to_be_written <= 1;
                 else
-                    pixel_value := 0;
+                    pixel_to_be_written <= 0;
                 end if;
-                transmit_pixel(f,pixel_value);
             end if;
 
         end if; -- rising_edge
     end process stimulus;	
+------------------------------------------------------------------------
+    u_lcr_driver : entity work.lcd_driver
+    port map(simulator_clock, (pixel_to_be_written, write_is_requested));
 ------------------------------------------------------------------------
 end vunit_simulation;
