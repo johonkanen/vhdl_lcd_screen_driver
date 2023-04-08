@@ -6,3 +6,4 @@ SET project_root=%%F
 )
 
 ghdl -a --ieee=synopsys --std=08 %project_root%\pixel_position_counter\pixel_position_counter_pkg.vhd
+ghdl -a --ieee=synopsys --std=08 %project_root%\lcd_driver\lcd_driver.vhd
