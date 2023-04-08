@@ -9,5 +9,6 @@ VU = VUnit.from_argv()
 
 lcdlibrary = VU.add_library("lcdlibrary")
 lcdlibrary.add_source_files(ROOT / "testbenches/plot_sine_tb.vhd")
+lcdlibrary.add_source_files(ROOT / "testbenches/pixel_position_counter_tb.vhd")
 
 VU.main()
