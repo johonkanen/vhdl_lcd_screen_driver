@@ -17,6 +17,16 @@ package lcd_driver_pkg is
     procedure transmit_pixel (
         signal self : out lcd_driver_input_record;
         pixel : in integer);
+--------------------------------------------------
+--------------------------------------------------
+    type lcd_driver_output_record is record
+        pixel_has_been_written : boolean;
+    end record;
+
+    constant init_lcd_driver_out : lcd_driver_output_record := (pixel_has_been_written => false);
+
+    function lcd_driver_is_ready ( self : lcd_driver_output_record)
+        return boolean;
 
 end package lcd_driver_pkg;
 --------------------------------------------------
@@ -40,6 +50,16 @@ package body lcd_driver_pkg is
         self.write_is_requested <= true;
     end transmit_pixel;
 
+    function lcd_driver_is_ready
+    (
+        self : lcd_driver_output_record
+    )
+    return boolean
+    is
+    begin
+        return self.pixel_has_been_written;
+    end lcd_driver_is_ready;
+
 end package body lcd_driver_pkg;
 ------------------------------------------------------------------------
 ------------------------------------------------------------------------
@@ -52,7 +72,8 @@ library ieee, std;
 entity lcd_driver is
     port (
         clock : in std_logic;
-        lcd_driver_in : in lcd_driver_input_record 
+        lcd_driver_in : in lcd_driver_input_record;
+        lcd_driver_out : out lcd_driver_output_record 
     );
 end entity lcd_driver;
 
@@ -120,6 +141,7 @@ architecture vunit_simulation of lcd_driver_tb is
     signal sinearray : intarray := init_intarray;
     signal has_run : boolean := false;
     signal lcd_driver_in : lcd_driver_input_record := init_lcd_driver;
+    signal lcd_driver_out : lcd_driver_output_record := init_lcd_driver_out;
 
 begin
 
@@ -168,6 +190,6 @@ begin
     end process stimulus;	
 ------------------------------------------------------------------------
     u_lcr_driver : entity work.lcd_driver
-    port map(simulator_clock, lcd_driver_in);
+    port map(simulator_clock, lcd_driver_in, lcd_driver_out);
 ------------------------------------------------------------------------
 end vunit_simulation;
