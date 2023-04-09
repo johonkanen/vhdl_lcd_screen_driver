@@ -18,6 +18,7 @@ lcdlibrary.add_source_files(ROOT / "hVHDL_memory_library/fpga_ram/ram_write_port
 lcdlibrary.add_source_files(ROOT / "testbenches/plot_sine_tb.vhd")
 lcdlibrary.add_source_files(ROOT / "testbenches/signal_plot_buffer_tb.vhd")
 lcdlibrary.add_source_files(ROOT / "testbenches/pixel_position_counter_tb.vhd")
-lcdlibrary.add_source_files(ROOT / "testbenches/lcd_driver_tb.vhd")
+# lcdlibrary.add_source_files(ROOT / "testbenches/lcd_driver_tb.vhd")
+lcdlibrary.add_source_files(ROOT / "testbenches/signal_buffer_tb.vhd")
 
 VU.main()

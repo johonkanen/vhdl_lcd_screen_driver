@@ -51,6 +51,13 @@ begin
             create_ram_read_port(read_port       , ram_memory);
             create_ram_write_port(ram_write_port , ram_memory);
 
+            if simulation_counter = 15 then
+                request_data_from_ram(read_port, 10);
+            end if;
+            if ram_read_is_ready(read_port) then
+                check(ram_memory(10) = get_ram_data(read_port), "did not get correct data from ram");
+            end if;
+
 
         end if; -- rising_edge
     end process stimulus;	
