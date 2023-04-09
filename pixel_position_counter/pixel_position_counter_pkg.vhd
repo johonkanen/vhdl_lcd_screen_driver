@@ -15,9 +15,10 @@ package lcd_pixel_driver_pkg is
         ypos : integer range 0 to ymax;
         is_requested : boolean;
         is_updated : boolean;
+        is_ready : boolean;
     end record;
 
-    constant init_pixel_position_counter : pixel_position_counter_record := (xmax,ymax, false, false);
+    constant init_pixel_position_counter : pixel_position_counter_record := (xmax,ymax, false, false, false);
     
     procedure create_pixel_position_counter (
         signal self : inout pixel_position_counter_record);
@@ -42,27 +43,53 @@ package lcd_pixel_driver_pkg is
         signal number : inout integer;
         wrap_at : in integer);
 
+    function figure_is_ready ( self : pixel_position_counter_record)
+        return boolean;
+
 
 end package lcd_pixel_driver_pkg;
 ------------------------------------------------------------------------
 package body lcd_pixel_driver_pkg is
-
-    procedure create_pixel_position_counter
+------------------------------------------------------------------------
+    procedure update_position
     (
         signal self : inout pixel_position_counter_record
     ) is
     begin
-        self.is_requested <= false;
-        self.is_updated <= false;
         if not ((self.xpos = xmax) and (self.ypos = ymax)) or self.is_requested then
             self.is_updated <= true;
             if self.xpos = xmax then
                 procedure_increment_and_wrap(self.ypos, ymax);
             end if;
             procedure_increment_and_wrap(self.xpos, xmax);
+            if self.ypos = ymax and self.xpos = xmax-1 then
+                self.is_ready <= true;
+            end if;
         end if;
+    end update_position;
+
+    procedure init_flags
+    (
+        signal self : inout pixel_position_counter_record
+    ) is
+    begin
+        self.is_requested <= false;
+        self.is_updated <= false;
+        self.is_ready <= false;
+    end init_flags;
+------------------------------------------------------------------------
+
+    procedure create_pixel_position_counter
+    (
+        signal self : inout pixel_position_counter_record
+    ) is
+    begin
+        init_flags(self);
+        update_position(self);
         
     end create_pixel_position_counter;
+
+    -----
 
     procedure create_pixel_position_counter
     (
@@ -70,21 +97,13 @@ package body lcd_pixel_driver_pkg is
         calculate : boolean
     ) is
     begin
-        self.is_updated <= false;
-        self.is_requested <= false;
+        init_flags(self);
         if self.is_requested or calculate then
-            if not ((self.xpos = xmax) and (self.ypos = ymax)) or self.is_requested then
-                if self.xpos = xmax then
-                    procedure_increment_and_wrap(self.ypos, ymax);
-                end if;
-                procedure_increment_and_wrap(self.xpos, xmax);
-                self.is_updated <= true;
-            end if;
-
+            update_position(self);
         end if;
-        
     end create_pixel_position_counter;
 ------------------------------------------------------------------------
+
     procedure request_pixel_counter
     (
         signal self : out pixel_position_counter_record
@@ -138,6 +157,16 @@ package body lcd_pixel_driver_pkg is
         
     end procedure_increment_and_wrap;
 
+    function figure_is_ready
+    (
+        self : pixel_position_counter_record
+    )
+    return boolean
+    is
+    begin
+        return self.is_ready;
+    end figure_is_ready;
+
     ------------------------------------------------------------------------
     function init_intarray return intarray
     is
@@ -151,5 +180,4 @@ package body lcd_pixel_driver_pkg is
         
     end init_intarray;
     ------------------------------------------------------------------------
-
 end package body lcd_pixel_driver_pkg;

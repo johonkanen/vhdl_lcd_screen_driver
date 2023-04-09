@@ -26,10 +26,12 @@ architecture vunit_simulation of lcd_driver_tb is
     -- simulation specific signals ----
 
     signal pixel_position_counter : pixel_position_counter_record := init_pixel_position_counter;
-    signal sinearray : intarray := init_intarray;
-    signal has_run : boolean := false;
-    signal lcd_driver_in : lcd_driver_input_record := init_lcd_driver;
-    signal lcd_driver_out : lcd_driver_output_record := init_lcd_driver_out;
+    signal sinearray              : intarray                      := init_intarray;
+    signal has_run                : boolean                       := false;
+    signal lcd_driver_in          : lcd_driver_input_record       := init_lcd_driver;
+    signal lcd_driver_out         : lcd_driver_output_record      := init_lcd_driver_out;
+
+    signal has_finished : boolean := false;
 
 begin
 
@@ -38,11 +40,15 @@ begin
     begin
         test_runner_setup(runner, runner_cfg);
         wait for simtime_in_clocks*clock_period;
-        check(get_x(pixel_position_counter) = xmax and get_y(pixel_position_counter) = ymax, "did not stop at maximum, " & 
-        " x = " &  integer'image(get_x(pixel_position_counter)) & 
-        " y = " & integer'image(get_y(pixel_position_counter))
-        );
-        check(has_run, "counter was never started");
+        -- tests
+            check(has_run, "counter was never started");
+            check(has_finished, "picture calculation never finished");
+            check(get_x(pixel_position_counter) = xmax and get_y(pixel_position_counter) = ymax, 
+            "did not stop at maximum, " & 
+            " x = " &  integer'image(get_x(pixel_position_counter)) & 
+            " y = " & integer'image(get_y(pixel_position_counter))
+            );
+        --
         test_runner_cleanup(runner); -- Simulation ends here
         wait;
     end process simtime;	
@@ -70,6 +76,10 @@ begin
             simulation_counter <= simulation_counter + 1;
             if get_x(pixel_position_counter) = 0 and get_y(pixel_position_counter) = 0 then
                 has_run <= true;
+            end if;
+
+            if figure_is_ready(pixel_position_counter) then
+                has_finished <= figure_is_ready(pixel_position_counter);
             end if;
 
             if simulation_counter = 15 then

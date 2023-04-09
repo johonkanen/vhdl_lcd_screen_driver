@@ -107,7 +107,7 @@ begin
             lcd_driver_out.pixel_has_been_written <= false;
             if lcd_driver_in.write_is_requested then
                 transmit_pixel(f,lcd_driver_in.pixel_to_be_written);
-                delay_counter <= 3;
+                delay_counter <= 4;
             end if;
 
             if delay_counter > 0 then
