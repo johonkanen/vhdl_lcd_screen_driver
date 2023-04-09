@@ -126,13 +126,23 @@ begin
 ------------------------------------------------------------------------
 
     stimulus : process(simulator_clock)
+        function get_sine_from_simulation_counter
+        (
+            counter : integer;
+            frequency : real
+        )
+        return integer
+        is
+        begin
+           return 320 - (integer(round(160.0 + 150.0*sin(real(counter)/480.0*2.0*frequency*math_pi)))); 
+        end get_sine_from_simulation_counter;
     begin
         if rising_edge(simulator_clock) then
 
             create_pixel_image_plotter(pixel_image_plotter, lcd_driver_in, lcd_driver_out);
 
             if simulation_counter < 480 then
-                write_data_to_ram(pixel_image_plotter.ram_write_port,simulation_counter, 320 - (integer(round(160.0 + 150.0*sin(real(simulation_counter)/480.0*2.0*math_pi)))));
+                write_data_to_ram(pixel_image_plotter.ram_write_port,simulation_counter, get_sine_from_simulation_counter(simulation_counter, 2.0));
             end if;
 
             ------------------------------
