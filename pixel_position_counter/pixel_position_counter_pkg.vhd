@@ -51,6 +51,7 @@ end package lcd_pixel_driver_pkg;
 ------------------------------------------------------------------------
 package body lcd_pixel_driver_pkg is
 ------------------------------------------------------------------------
+
     procedure update_position
     (
         signal self : inout pixel_position_counter_record
@@ -77,20 +78,8 @@ package body lcd_pixel_driver_pkg is
         self.is_updated <= false;
         self.is_ready <= false;
     end init_flags;
+
 ------------------------------------------------------------------------
-
-    procedure create_pixel_position_counter
-    (
-        signal self : inout pixel_position_counter_record
-    ) is
-    begin
-        init_flags(self);
-        update_position(self);
-        
-    end create_pixel_position_counter;
-
-    -----
-
     procedure create_pixel_position_counter
     (
         signal self : inout pixel_position_counter_record;
@@ -102,6 +91,18 @@ package body lcd_pixel_driver_pkg is
             update_position(self);
         end if;
     end create_pixel_position_counter;
+
+    -----
+
+    procedure create_pixel_position_counter
+    (
+        signal self : inout pixel_position_counter_record
+    ) is
+    begin
+        create_pixel_position_counter(self, true);
+        
+    end create_pixel_position_counter;
+
 ------------------------------------------------------------------------
 
     procedure request_pixel_counter
