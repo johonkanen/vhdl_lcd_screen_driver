@@ -3,10 +3,11 @@ library ieee;
     use ieee.numeric_std.all;
     use ieee.math_real.all;
 
+    use work.image_configuration_pkg.xmax;
+    use work.image_configuration_pkg.ymax;
+
 package lcd_pixel_driver_pkg is
 
-    constant xmax : integer := 479;
-    constant ymax : integer := 319;
     type intarray is array (integer range 0 to 479) of integer;
     function init_intarray return intarray;
 

@@ -2,6 +2,7 @@ library ieee;
     use ieee.std_logic_1164.all;
     use ieee.numeric_std.all;
 
+    use work.image_configuration_pkg.all;
     use work.lcd_pixel_driver_pkg.all;
     use work.lcd_driver_pkg.all;
 
@@ -11,11 +12,12 @@ library ieee;
 
 package pixel_image_plotter_pkg is
 
+
     type pixel_image_plotter_record is record
         pixel_position_counter : pixel_position_counter_record;
         read_port              : ram_read_port_record;
         ram_write_port         : ram_write_port_record;
-        ram_memory             : integer_array(0 to 480 - 1);
+        ram_memory             : integer_array(0 to x_max - 1);
     end record;
 
     constant init_pixel_image_plotter : pixel_image_plotter_record := (
@@ -27,10 +29,13 @@ package pixel_image_plotter_pkg is
         signal lcd_driver_in : out lcd_driver_input_record;
         lcd_driver_out : in lcd_driver_output_record);
 
+    procedure request_image ( signal self : inout pixel_image_plotter_record);
+
 end package pixel_image_plotter_pkg;
 ------------------------------
 package body pixel_image_plotter_pkg is
 
+------------------------------------------------------------------------
     procedure create_pixel_image_plotter
     (
         signal self : inout pixel_image_plotter_record;
@@ -45,7 +50,7 @@ package body pixel_image_plotter_pkg is
         create_ram_write_port(self.ram_write_port , self.ram_memory);
 
         if pixel_position_is_updated(self.pixel_position_counter) then
-            if get_x(self.pixel_position_counter)+1 < 480 then
+            if get_x(self.pixel_position_counter)+1 < x_max then
                 request_data_from_ram(self.read_port, get_x(self.pixel_position_counter)+1);
             else
                 request_data_from_ram(self.read_port, 0);
@@ -59,6 +64,17 @@ package body pixel_image_plotter_pkg is
         
     end create_pixel_image_plotter;
 
+------------------------------------------------------------------------
+    procedure request_image
+    (
+        signal self : inout pixel_image_plotter_record
+    ) is
+    begin
+        request_pixel_counter(self.pixel_position_counter);
+        request_data_from_ram(self.read_port, 319);
+    end request_image;
+------------------------------------------------------------------------
+
 end package body pixel_image_plotter_pkg;
 ------------------------------------------------------------------------
 ------------------------------------------------------------------------
@@ -68,6 +84,7 @@ LIBRARY ieee, std;
     use ieee.math_real.all;
     use std.textio.all;
 
+    use work.image_configuration_pkg.all;
     use work.lcd_driver_pkg.all;
     use work.lcd_pixel_driver_pkg.all;
 
@@ -86,7 +103,7 @@ end;
 architecture vunit_simulation of signal_buffer_tb is
 
     constant clock_period      : time    := 1 ns;
-    constant simtime_in_clocks : integer := 480*320*8;
+    constant simtime_in_clocks : integer := x_max*y_max*8;
     
     signal simulator_clock     : std_logic := '0';
     signal simulation_counter  : natural   := 0;
@@ -134,14 +151,14 @@ begin
         return integer
         is
         begin
-           return 320 - (integer(round(160.0 + 150.0*sin(real(counter)/480.0*2.0*frequency*math_pi)))); 
+           return y_max - (integer(round(160.0 + 150.0*sin(real(counter)/real(x_max)*2.0*frequency*math_pi)))); 
         end get_sine_from_simulation_counter;
     begin
         if rising_edge(simulator_clock) then
 
             create_pixel_image_plotter(pixel_image_plotter, lcd_driver_in, lcd_driver_out);
 
-            if simulation_counter < 480 then
+            if simulation_counter < x_max then
                 write_data_to_ram(pixel_image_plotter.ram_write_port,simulation_counter, get_sine_from_simulation_counter(simulation_counter, 2.0));
             end if;
 
@@ -158,8 +175,7 @@ begin
             end if;
 
             if simulation_counter = 15 then
-                request_pixel_counter(pixel_image_plotter.pixel_position_counter);
-                request_data_from_ram(pixel_image_plotter.read_port, 319);
+                request_image(pixel_image_plotter);
             end if;
             ------------------------------
         end if; -- rising_edge

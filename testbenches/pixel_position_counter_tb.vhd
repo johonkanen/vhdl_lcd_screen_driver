@@ -5,6 +5,8 @@ LIBRARY ieee, std;
     use ieee.math_real.all;
     use std.textio.all;
 
+    use work.image_configuration_pkg.xmax;
+    use work.image_configuration_pkg.ymax;
     use work.lcd_pixel_driver_pkg.all;
 
 library vunit_lib;
@@ -17,7 +19,7 @@ end;
 architecture vunit_simulation of pixel_position_counter_tb is
 
     constant clock_period      : time    := 1 ns;
-    constant simtime_in_clocks : integer := 480*320+100;
+    constant simtime_in_clocks : integer := (xmax + 1)*(ymax + 1)+100;
     
     signal simulator_clock     : std_logic := '0';
     signal simulation_counter  : natural   := 0;
