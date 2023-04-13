@@ -4,6 +4,7 @@ LIBRARY ieee, std;
     use ieee.math_real.all;
     use std.textio.all;
 
+    use work.fpga_interconnect_pkg.all;
     use work.image_configuration_pkg.all;
     use work.lcd_driver_pkg.all;
     use work.lcd_pixel_driver_pkg.all;
@@ -16,11 +17,11 @@ LIBRARY ieee, std;
 library vunit_lib;
 context vunit_lib.vunit_context;
 
-entity signal_buffer_tb is
+entity lcd_driver_w_bus_tb is
   generic (runner_cfg : string);
 end;
 
-architecture vunit_simulation of signal_buffer_tb is
+architecture vunit_simulation of lcd_driver_w_bus_tb is
 
     constant clock_period      : time    := 1 ns;
     constant simtime_in_clocks : integer := x_max*y_max*8;
@@ -40,6 +41,9 @@ architecture vunit_simulation of signal_buffer_tb is
     signal pixel_image_plotter : pixel_image_plotter_record := init_pixel_image_plotter;
     type std_array is array (integer range <>) of ramtype;
     signal test_ram       : std_array(0 to 1023)  := (others => (15 downto 0 => x"cccc", others => '0'));
+
+    signal bus_from_lcd_driver : fpga_interconnect_record := init_fpga_interconnect;
+    signal bus_from_stimulus : fpga_interconnect_record := init_fpga_interconnect;
 
 begin
 
@@ -77,6 +81,8 @@ begin
         end get_sine_from_simulation_counter;
         alias ram_read_port is pixel_image_plotter.read_port;
         alias ram_write_port is pixel_image_plotter.ram_write_port;
+
+
     begin
         if rising_edge(simulator_clock) then
 
@@ -114,7 +120,33 @@ begin
         end if; -- rising_edge
     end process stimulus;	
 ------------------------------------------------------------------------
-    u_lcd_driver : entity work.lcd_driver
-    port map(simulator_clock, lcd_driver_in, lcd_driver_out);
+    bus_master : process(simulator_clock)
+        use std.textio.all;
+        file f : text open write_mode is "pixel_image_stream_from_bus_lcd_driver.txt";
+        ----------------------------------------------------------------------
+        procedure transmit_pixel
+        (
+            file file_handle : text;
+            pixel : in integer
+        ) is
+            variable row : line;
+        begin
+            write(row , pixel);
+            writeline(file_handle , row);
+        end transmit_pixel;
+        ----------------------------------------------------------------------
+        
+    begin
+        if rising_edge(simulator_clock) then
+            init_bus(bus_from_stimulus);
+            if write_from_bus_is_requested(bus_from_lcd_driver) then
+                transmit_pixel(f,get_data(bus_from_lcd_driver));
+            end if;
+
+        end if; --rising_edge
+    end process bus_master;	
+------------------------------------------------------------------------
+    u_lcd_driver : entity work.lcd_driver_w_bus
+    port map(simulator_clock, lcd_driver_in, lcd_driver_out, bus_from_stimulus, bus_from_lcd_driver);
 ------------------------------------------------------------------------
 end vunit_simulation;

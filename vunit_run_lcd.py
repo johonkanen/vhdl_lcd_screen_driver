@@ -17,6 +17,7 @@ lcdlibrary.add_source_files(ROOT / "pixel_position_counter/pixel_position_counte
 lcdlibrary.add_source_files(ROOT / "lcd_driver/lcd_driver_pkg.vhd")
 lcdlibrary.add_source_files(ROOT / "lcd_driver/lcd_driver.vhd")
 lcdlibrary.add_source_files(ROOT / "lcd_driver/lcd_driver_w_bus.vhd")
+lcdlibrary.add_source_files(ROOT / "pixel_image_plotter/pixel_image_plotter_pkg.vhd")
 
 lcdlibrary.add_source_files(ROOT / "ram/ram_configuration/data_width_16bit_pkg.vhd")
 lcdlibrary.add_source_files(ROOT / "ram/ram_read_port_pkg.vhd")
@@ -26,5 +27,6 @@ lcdlibrary.add_source_files(ROOT / "testbenches/plot_sine_tb.vhd")
 lcdlibrary.add_source_files(ROOT / "testbenches/pixel_position_counter_tb.vhd")
 lcdlibrary.add_source_files(ROOT / "testbenches/lcd_driver_tb.vhd")
 lcdlibrary.add_source_files(ROOT / "testbenches/signal_buffer_tb.vhd")
+lcdlibrary.add_source_files(ROOT / "testbenches/lcd_driver_w_bus_tb.vhd")
 
 VU.main()
