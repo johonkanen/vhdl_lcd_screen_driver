@@ -8,10 +8,15 @@ ROOT = Path(__file__).resolve().parent
 VU = VUnit.from_argv()
 
 lcdlibrary = VU.add_library("lcdlibrary")
+
+lcdlibrary.add_source_files(ROOT / "hVHDL_fpga_interconnect/interconnect_configuration/data_15_address_15_bit_pkg.vhd")
+lcdlibrary.add_source_files(ROOT / "hVHDL_fpga_interconnect/fpga_interconnect_pkg.vhd")
+
 lcdlibrary.add_source_files(ROOT / "image_configuration/image_configuration_pkg.vhd")
 lcdlibrary.add_source_files(ROOT / "pixel_position_counter/pixel_position_counter_pkg.vhd")
 lcdlibrary.add_source_files(ROOT / "lcd_driver/lcd_driver_pkg.vhd")
 lcdlibrary.add_source_files(ROOT / "lcd_driver/lcd_driver.vhd")
+lcdlibrary.add_source_files(ROOT / "lcd_driver/lcd_driver_w_bus.vhd")
 
 lcdlibrary.add_source_files(ROOT / "ram/ram_configuration/data_width_16bit_pkg.vhd")
 lcdlibrary.add_source_files(ROOT / "ram/ram_read_port_pkg.vhd")
