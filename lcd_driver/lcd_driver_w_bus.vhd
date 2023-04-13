@@ -24,23 +24,6 @@ architecture write_to_file of lcd_driver_w_bus is
 begin
 
     drive_a_pixel : process(clock)
-        use std.textio.all;
-
-        file f : text open write_mode is "pixel_image_stream_from_bus_lcd_driver.txt";
-        ------------------------------------------------------------------------
-        -- procedure transmit_pixel
-        -- (
-        --     file file_handle : text;
-        --     pixel : in integer
-        -- ) is
-        --     variable row : line;
-        -- begin
-        --     write(row , pixel);
-        --     writeline(file_handle , row);
-        -- end transmit_pixel;
-        -- transmit_pixel(f,lcd_driver_in.pixel_to_be_written);
-        ------------------------------------------------------------------------
-        
     begin
         if rising_edge(clock) then
             init_bus(bus_from_lcd_driver);
