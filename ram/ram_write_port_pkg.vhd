@@ -21,7 +21,17 @@ package ram_write_port_pkg is
     procedure create_ram_write_port (
         signal self : inout ram_write_port_record);
 ------------------------------------------------------------------------
+    procedure write_data_to_ram (
+        signal self : inout ram_write_port_record;
+        address_in  : in integer;
+        data_in     : in std_logic_vector);
 
+    procedure write_data_to_ram (
+        signal self : inout ram_write_port_record;
+        address_in  : in integer;
+        data_in     : in integer);
+
+    -- these will be removed
     procedure write_ram (
         signal self : inout ram_write_port_record;
         data_in     : in std_logic_vector;
@@ -53,11 +63,11 @@ package body ram_write_port_pkg is
         self.write_enabled_with_1 <= '0';
     end create_ram_write_port;
 ------------------------------------------------------------------------
-    procedure write_ram
+    procedure write_data_to_ram
     (
         signal self : inout ram_write_port_record;
-        data_in     : in std_logic_vector;
-        address_in  : in integer
+        address_in  : in integer;
+        data_in     : in std_logic_vector
     ) is
     begin
         self.write_enabled_with_1 <= '1';
@@ -65,6 +75,26 @@ package body ram_write_port_pkg is
         self.write_address        <= address_in;
 
         self.write_is_ready_pipeline(0) <= '1';
+    end write_data_to_ram;
+
+    procedure write_data_to_ram
+    (
+        signal self : inout ram_write_port_record;
+        address_in  : in integer;
+        data_in     : in integer
+    ) is
+    begin
+        write_data_to_ram(self, address_in, std_logic_vector(to_unsigned(data_in, ram_port_width)));
+    end write_data_to_ram;
+------------------------------------------------------------------------
+    procedure write_ram
+    (
+        signal self : inout ram_write_port_record;
+        data_in     : in std_logic_vector;
+        address_in  : in integer
+    ) is
+    begin
+        write_data_to_ram(self, address_in, data_in);
     end write_ram;
 ------------------------------------------------------------------------
     procedure write_ram

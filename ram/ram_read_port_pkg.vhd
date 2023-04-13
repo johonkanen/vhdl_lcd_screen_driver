@@ -34,6 +34,9 @@ package ram_read_port_pkg is
     function get_ram_data ( self : ram_read_port_record)
         return std_logic_vector;
 
+    function get_ram_data ( self : ram_read_port_record)
+        return integer;
+
 end package ram_read_port_pkg;
 
 ------------------------------------------------------------------------
@@ -91,6 +94,16 @@ package body ram_read_port_pkg is
     is
     begin
         return self.read_buffer;
+    end get_ram_data;
+
+    function get_ram_data
+    (
+        self : ram_read_port_record
+    )
+    return integer
+    is
+    begin
+        return to_integer(unsigned(self.read_buffer));
     end get_ram_data;
 
     function ram_read_is_requested

@@ -5,6 +5,8 @@ LIBRARY ieee, std;
     use ieee.math_real.all;
     use std.textio.all;
 
+    use work.image_configuration_pkg.xmax;
+    use work.image_configuration_pkg.ymax;
     use work.lcd_pixel_driver_pkg.all;
     use work.lcd_driver_pkg.all;
 

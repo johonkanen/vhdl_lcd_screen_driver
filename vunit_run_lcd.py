@@ -12,13 +12,13 @@ lcdlibrary.add_source_files(ROOT / "image_configuration/image_configuration_pkg.
 lcdlibrary.add_source_files(ROOT / "pixel_position_counter/pixel_position_counter_pkg.vhd")
 lcdlibrary.add_source_files(ROOT / "lcd_driver/lcd_driver.vhd")
 
-lcdlibrary.add_source_files(ROOT / "hVHDL_memory_library/fpga_ram/ram_configuration/ram_configuration_16x1024_pkg.vhd")
-lcdlibrary.add_source_files(ROOT / "hVHDL_memory_library/fpga_ram/ram_read_port_pkg.vhd")
-lcdlibrary.add_source_files(ROOT / "hVHDL_memory_library/fpga_ram/ram_write_port_pkg.vhd")
+lcdlibrary.add_source_files(ROOT / "ram/ram_configuration/data_width_16bit_pkg.vhd")
+lcdlibrary.add_source_files(ROOT / "ram/ram_read_port_pkg.vhd")
+lcdlibrary.add_source_files(ROOT / "ram/ram_write_port_pkg.vhd")
 
 lcdlibrary.add_source_files(ROOT / "testbenches/plot_sine_tb.vhd")
-lcdlibrary.add_source_files(ROOT / "testbenches/signal_plot_buffer_tb.vhd")
-lcdlibrary.add_source_files(ROOT / "testbenches/pixel_position_counter_tb.vhd")
+# lcdlibrary.add_source_files(ROOT / "testbenches/signal_plot_buffer_tb.vhd")
+# lcdlibrary.add_source_files(ROOT / "testbenches/pixel_position_counter_tb.vhd")
 # lcdlibrary.add_source_files(ROOT / "testbenches/lcd_driver_tb.vhd")
 lcdlibrary.add_source_files(ROOT / "testbenches/signal_buffer_tb.vhd")
 

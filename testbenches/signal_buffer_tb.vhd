@@ -8,7 +8,7 @@ library ieee;
 
     use work.ram_read_port_pkg.all;
     use work.ram_write_port_pkg.all;
-    use work.ram_configuration_pkg.all;
+    use work.ram_data_width_pkg.all;
 
 package pixel_image_plotter_pkg is
 
@@ -17,12 +17,11 @@ package pixel_image_plotter_pkg is
         pixel_position_counter : pixel_position_counter_record;
         read_port              : ram_read_port_record;
         ram_write_port         : ram_write_port_record;
-        ram_memory             : integer_array(0 to x_max - 1);
     end record;
 
     constant init_pixel_image_plotter : pixel_image_plotter_record := (
          init_pixel_position_counter,
-         init_ram_read_port, init_ram_write_port, (others => 15));
+         init_ram_read_port, init_ram_write_port);
 
     procedure create_pixel_image_plotter (
         signal self : inout pixel_image_plotter_record;
@@ -46,8 +45,8 @@ package body pixel_image_plotter_pkg is
         create_pixel_position_counter(self.pixel_position_counter, lcd_driver_is_ready(lcd_driver_out));
         setup_lcd_driver(lcd_driver_in);
 
-        create_ram_read_port(self.read_port       , self.ram_memory);
-        create_ram_write_port(self.ram_write_port , self.ram_memory);
+        create_ram_read_port(self.read_port);
+        create_ram_write_port(self.ram_write_port);
 
         if pixel_position_is_updated(self.pixel_position_counter) then
             if get_x(self.pixel_position_counter)+1 < x_max then
@@ -118,6 +117,8 @@ architecture vunit_simulation of signal_buffer_tb is
     signal has_finished : boolean := false;
 
     signal pixel_image_plotter : pixel_image_plotter_record := init_pixel_image_plotter;
+    type std_array is array (integer range <>) of ramtype;
+    signal test_ram       : std_array(0 to 1023)  := (others => (15 downto 0 => x"cccc", others => '0'));
 
 begin
 
@@ -153,13 +154,24 @@ begin
         begin
            return y_max - (integer(round(160.0 + 150.0*sin(real(counter)/real(x_max)*2.0*frequency*math_pi)))); 
         end get_sine_from_simulation_counter;
+        alias ram_read_port is pixel_image_plotter.read_port;
+        alias ram_write_port is pixel_image_plotter.ram_write_port;
     begin
         if rising_edge(simulator_clock) then
 
             create_pixel_image_plotter(pixel_image_plotter, lcd_driver_in, lcd_driver_out);
+            ------------------------------------------------------------------------
+            if ram_read_is_requested(ram_read_port) then
+                ram_read_port.read_buffer <= test_ram(get_ram_read_address(ram_read_port));
+            end if;
+
+            if write_to_ram_is_requested(ram_write_port) then
+                test_ram(ram_write_port.write_address) <= ram_write_port.write_buffer;
+            end if;
+            ------------------------------------------------------------------------
 
             if simulation_counter < x_max then
-                write_data_to_ram(pixel_image_plotter.ram_write_port,simulation_counter, get_sine_from_simulation_counter(simulation_counter, 2.0));
+                write_data_to_ram(pixel_image_plotter.ram_write_port,simulation_counter, get_sine_from_simulation_counter(simulation_counter, 10.0));
             end if;
 
             ------------------------------
