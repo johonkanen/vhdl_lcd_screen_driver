@@ -9,21 +9,23 @@ package lcd_spi_driver_pkg is
 
 ------------------------------------------------------------------------
     type lcd_spi_driver_record is record
-        clock_divider      : clock_divider_record          ;
-        shift_register     : std_logic_vector(15 downto 0) ;
-        out_shift_register : std_logic_vector(15 downto 0) ;
-        spi_data_counter   : integer range 0 to 15         ;
+        clock_divider          : clock_divider_record          ;
+        shift_register         : std_logic_vector(15 downto 0) ;
+        out_shift_register     : std_logic_vector(15 downto 0) ;
+        spi_data_counter       : integer range 0 to 31         ;
+        data_or_command_select : std_logic                     ;
     end record;
 
     constant init_lcd_spi_driver : lcd_spi_driver_record := (
-        init_clock_divider(7) , (others => '0') , (others => '0') , 0);
+        init_clock_divider(7) , (others => '0') , (others => '0') , 0 , '0');
 
 ------------------------------------------------------------------------
     procedure create_lcd_spi_driver (
         signal self         : inout lcd_spi_driver_record;
         signal spi_clock    : out std_logic;
         spi_data_in         : in std_logic;
-        signal spi_data_out : out std_logic);
+        signal spi_data_out : out std_logic;
+        signal data_or_command_select : out std_logic);
 ------------------------------------------------------------------------
     procedure request_spi_command (
         signal self : inout lcd_spi_driver_record;
@@ -36,22 +38,30 @@ package body lcd_spi_driver_pkg is
 ------------------------------------------------------------------------
     procedure create_lcd_spi_driver
     (
-        signal self         : inout lcd_spi_driver_record;
-        signal spi_clock    : out std_logic;
-        spi_data_in         : in std_logic;
-        signal spi_data_out : out std_logic
+        signal self                   : inout lcd_spi_driver_record;
+        signal spi_clock              : out std_logic;
+        spi_data_in                   : in std_logic;
+        signal spi_data_out           : out std_logic;
+        signal data_or_command_select : out std_logic
     ) is
     begin
         create_clock_divider(self.clock_divider);
+        spi_clock <= not get_divided_clock(self.clock_divider);
 
         if data_delivered_on_falling_edge(self.clock_divider) then
             self.shift_register <= self.shift_register(14 downto 0) & spi_data_in;
+            spi_data_out <= self.shift_register(15);
         end if;
 
         if data_delivered_on_rising_edge(self.clock_divider) then
             self.out_shift_register <= self.shift_register(14 downto 0) & '0';
+            self.spi_data_counter <= self.spi_data_counter + 1;
+            if self.spi_data_counter mod 8 = 6 then
+                data_or_command_select <= self.data_or_command_select;
+            else
+                data_or_command_select <= '0';
+            end if;
         end if;
-        
     end create_lcd_spi_driver;
 ------------------------------------------------------------------------
     procedure request_spi_command
@@ -66,8 +76,27 @@ package body lcd_spi_driver_pkg is
             self.out_shift_register(i) <= data_to_be_transmitted(i);
         end loop;
         request_clock_divider(self.clock_divider, number_of_bits);
+        self.spi_data_counter <= 0;
+        self.data_or_command_select <= '1';
         
     end request_spi_command;
+
+    procedure request_spi_data
+    (
+        signal self : inout lcd_spi_driver_record;
+        data_to_be_transmitted : in std_logic_vector 
+    ) is
+        variable number_of_bits : natural;
+    begin
+        number_of_bits := data_to_be_transmitted'length;
+        for i in 0 to number_of_bits-1 loop
+            self.out_shift_register(i) <= data_to_be_transmitted(i);
+        end loop;
+        request_clock_divider(self.clock_divider, number_of_bits);
+        self.spi_data_counter <= 0;
+        self.data_or_command_select <= '1';
+        
+    end request_spi_data;
 ------------------------------------------------------------------------
 
 end package body lcd_spi_driver_pkg;
@@ -99,7 +128,6 @@ architecture vunit_simulation of lcd_spi_driver_tb is
 
     constant test_data : std_logic_vector(15 downto 0) := x"acdc";
     signal spi_clock : std_logic := '0';
-    signal divided_clock : std_logic;
 
     signal self : lcd_spi_driver_record := init_lcd_spi_driver;
 
@@ -107,6 +135,7 @@ architecture vunit_simulation of lcd_spi_driver_tb is
     signal spi_data_out : std_logic := '0';
 
     signal test_data_out : std_logic_vector(15 downto 0) := x"acdc";
+    signal data_or_command_select : std_logic;
 begin
 
 ------------------------------------------------------------------------
@@ -126,9 +155,7 @@ begin
     begin
         if rising_edge(simulator_clock) then
             simulation_counter <= simulation_counter + 1;
-            create_lcd_spi_driver(self,spi_clock, test_data_out(15), spi_data_out);
-
-            divided_clock <= get_divided_clock(self.clock_divider);
+            create_lcd_spi_driver(self,spi_clock, test_data_out(15), spi_data_out, data_or_command_select);
 
             if clock_divider_is_ready(self.clock_divider) then
                 check(self.shift_register = test_data, "expected " & to_string(test_data) & " got " & to_string(self.shift_register));
@@ -142,9 +169,10 @@ begin
         end if; -- rising_edge
     end process stimulus;	
 
-    test_spi : process(divided_clock)
+------------------------------------------------------------------------
+    test_spi : process(spi_clock)
     begin
-        if rising_edge(divided_clock) then
+        if falling_edge(spi_clock) then
             test_data_out <= test_data_out(14 downto 0) & test_data_out(15);
         end if; --rising_edge
     end process test_spi;	
