@@ -64,18 +64,29 @@ package body lcd_spi_driver_pkg is
         end if;
     end create_lcd_spi_driver;
 ------------------------------------------------------------------------
-    procedure request_spi_command
+    procedure transmit_spi_frame
     (
         signal self : inout lcd_spi_driver_record;
         data_to_be_transmitted : in std_logic_vector 
     ) is
         variable number_of_bits : natural;
+        constant left : integer := self.out_shift_register'left;
     begin
         number_of_bits := data_to_be_transmitted'length;
         for i in 0 to number_of_bits-1 loop
-            self.out_shift_register(i) <= data_to_be_transmitted(i);
+            self.out_shift_register(left-i) <= data_to_be_transmitted(number_of_bits-1-i);
         end loop;
         request_clock_divider(self.clock_divider, number_of_bits);
+        
+    end transmit_spi_frame;
+------------------------------------------------------------------------
+    procedure request_spi_command
+    (
+        signal self : inout lcd_spi_driver_record;
+        data_to_be_transmitted : in std_logic_vector 
+    ) is
+    begin
+        transmit_spi_frame(self, data_to_be_transmitted);
         self.spi_data_counter <= 0;
         self.data_or_command_select <= '1';
         
@@ -86,13 +97,8 @@ package body lcd_spi_driver_pkg is
         signal self : inout lcd_spi_driver_record;
         data_to_be_transmitted : in std_logic_vector 
     ) is
-        variable number_of_bits : natural;
     begin
-        number_of_bits := data_to_be_transmitted'length;
-        for i in 0 to number_of_bits-1 loop
-            self.out_shift_register(i) <= data_to_be_transmitted(i);
-        end loop;
-        request_clock_divider(self.clock_divider, number_of_bits);
+        transmit_spi_frame(self, data_to_be_transmitted);
         self.spi_data_counter <= 0;
         self.data_or_command_select <= '1';
         
@@ -126,7 +132,7 @@ architecture vunit_simulation of lcd_spi_driver_tb is
     -----------------------------------
     -- simulation specific signals ----
 
-    constant test_data : std_logic_vector(15 downto 0) := x"acdc";
+    constant test_data : std_logic_vector(15 downto 0) := x"00dc";
     signal spi_clock : std_logic := '0';
 
     signal self : lcd_spi_driver_record := init_lcd_spi_driver;
@@ -134,7 +140,7 @@ architecture vunit_simulation of lcd_spi_driver_tb is
     signal data_was_received : boolean := false;
     signal spi_data_out : std_logic := '0';
 
-    signal test_data_out : std_logic_vector(15 downto 0) := x"acdc";
+    signal test_data_out : std_logic_vector(15 downto 0) := test_data;
     signal data_or_command_select : std_logic;
 begin
 
