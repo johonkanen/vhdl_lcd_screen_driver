@@ -16,6 +16,8 @@ ghdl -a --ieee=synopsys --std=08 %project_root%\pixel_position_counter\pixel_pos
 
 ghdl -a --ieee=synopsys --std=08 %project_root%\SPI_driver\clock_divider_pkg.vhd
 
+ghdl -a --ieee=synopsys --std=08 %project_root%\lcd_spi_driver/lcd_spi_driver_pkg.vhd
+
 ghdl -a --ieee=synopsys --std=08 %project_root%\lcd_driver\lcd_driver_pkg.vhd
 ghdl -a --ieee=synopsys --std=08 %project_root%\lcd_driver\lcd_driver.vhd
 ghdl -a --ieee=synopsys --std=08 %project_root%\lcd_driver\lcd_driver_w_bus.vhd

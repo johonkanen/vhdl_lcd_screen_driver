@@ -72,17 +72,7 @@ begin
         if rising_edge(simulator_clock) then
             simulation_counter <= simulation_counter + 1;
 
-            if get_x(pixel_position_counter) = 0 and get_y(pixel_position_counter) = 0 then
-                has_run <= true;
-            end if;
-
             create_pixel_position_counter(pixel_position_counter);
-            xpos <= get_x(pixel_position_counter);
-            ypos <= get_y(pixel_position_counter);
-
-            if simulation_counter = 15 then
-                request_pixel_counter(pixel_position_counter);
-            end if;
 
             if pixel_position_is_updated(pixel_position_counter) then
                 if get_y(pixel_position_counter) = sinearray(get_x(pixel_position_counter)) then
@@ -92,6 +82,17 @@ begin
                 end if;
                 transmit_pixel(f,pixel_value);
             end if;
+
+            -- test signals
+            if simulation_counter = 15 then
+                request_pixel_counter(pixel_position_counter);
+            end if;
+
+            if get_x(pixel_position_counter) = 0 and get_y(pixel_position_counter) = 0 then
+                has_run <= true;
+            end if;
+            xpos <= get_x(pixel_position_counter);
+            ypos <= get_y(pixel_position_counter);
 
         end if; -- rising_edge
     end process stimulus;	

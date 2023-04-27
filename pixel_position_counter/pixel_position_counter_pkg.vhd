@@ -70,6 +70,7 @@ package body lcd_pixel_driver_pkg is
         end if;
     end update_position;
 
+------------------------------------------------------------------------
     procedure init_flags
     (
         signal self : inout pixel_position_counter_record
