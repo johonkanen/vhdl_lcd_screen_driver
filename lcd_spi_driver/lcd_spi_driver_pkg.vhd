@@ -71,7 +71,7 @@ package body spi_pkg is
     ) is
     begin
         self.read_is_ready <= false;
-        if self.clock_counter = 1 and self.number_of_clock_cycles = 0 then
+        if self.clock_counter = 1 and self.number_of_clock_cycles = 1 then
             self.read_is_ready <= true;
         end if;
     end create_ready_flag;
