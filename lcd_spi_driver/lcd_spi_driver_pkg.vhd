@@ -12,7 +12,7 @@ package spi_pkg is
         read_is_ready          : boolean;
     end record;
 
-    constant spi_counter_max : integer := 50;
+    constant spi_counter_max : integer := 8;
     constant init_spi : spi_record := (spi_counter_max, 0, (others => '0'), (others => '0'), false);
 
     procedure create_spi (
@@ -122,7 +122,7 @@ package body spi_pkg is
         number_of_clock_cycles : integer
     ) is
     begin
-        self.number_of_clock_cycles <= 8 + number_of_clock_cycles;
+        self.number_of_clock_cycles <= 9 + number_of_clock_cycles;
         self.transmit_register      <= '0' & data_to_be_sent;
     end transmit_data;
 ------------------------------------------------------------------------
