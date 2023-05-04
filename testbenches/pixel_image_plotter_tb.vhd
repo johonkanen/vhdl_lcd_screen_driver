@@ -16,11 +16,11 @@ LIBRARY ieee, std;
 library vunit_lib;
 context vunit_lib.vunit_context;
 
-entity signal_buffer_tb is
+entity pixel_image_plotter_tb is
   generic (runner_cfg : string);
 end;
 
-architecture vunit_simulation of signal_buffer_tb is
+architecture vunit_simulation of pixel_image_plotter_tb is
 
     constant clock_period      : time    := 1 ns;
     constant simtime_in_clocks : integer := x_max*y_max*8;

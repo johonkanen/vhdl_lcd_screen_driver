@@ -5,6 +5,7 @@ library ieee, std;
     use work.lcd_driver_pkg.all;
 
 entity lcd_driver is
+    generic(latency_in_clock_cycles : integer := 4);
     port (
         clock : in std_logic;
         lcd_driver_in : in lcd_driver_input_record;
@@ -15,7 +16,7 @@ end entity lcd_driver;
 
 architecture write_to_file of lcd_driver is
 
-    signal delay_counter : integer range 0 to 7 := 0;
+    signal delay_counter : natural := 0;
 
 
 begin
@@ -42,7 +43,7 @@ begin
             lcd_driver_out.pixel_has_been_written <= false;
             if lcd_driver_in.write_is_requested then
                 transmit_pixel(f,lcd_driver_in.pixel_to_be_written);
-                delay_counter <= 4;
+                delay_counter <= latency_in_clock_cycles;
             end if;
 
             if delay_counter > 0 then

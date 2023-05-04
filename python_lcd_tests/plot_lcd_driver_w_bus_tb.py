@@ -1,3 +1,4 @@
+#plot_lcd_driver_w_bus_tb
 from lcd_plotter import *
 import numpy as np
 

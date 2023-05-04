@@ -29,7 +29,7 @@ lcdlibrary.add_source_files(ROOT / "SPI_driver/clock_divider_pkg.vhd")
 lcdlibrary.add_source_files(ROOT / "testbenches/write_sine_to_file_tb.vhd")
 lcdlibrary.add_source_files(ROOT / "testbenches/pixel_position_counter_tb.vhd")
 lcdlibrary.add_source_files(ROOT / "testbenches/lcd_driver_tb.vhd")
-lcdlibrary.add_source_files(ROOT / "testbenches/signal_buffer_tb.vhd")
+lcdlibrary.add_source_files(ROOT / "testbenches/pixel_image_plotter_tb.vhd")
 lcdlibrary.add_source_files(ROOT / "testbenches/lcd_driver_w_bus_tb.vhd")
 
 lcdlibrary.add_source_files(ROOT / "testbenches/lcd_spi_testbenches/lcd_spi_driver_tb.vhd")
