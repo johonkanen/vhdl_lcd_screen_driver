@@ -7,11 +7,11 @@ LIBRARY ieee, std;
 library vunit_lib;
 context vunit_lib.vunit_context;
 
-entity plot_sine_tb is
+entity write_sine_to_file_tb is
   generic (runner_cfg : string);
 end;
 
-architecture vunit_simulation of plot_sine_tb is
+architecture vunit_simulation of write_sine_to_file_tb is
 
     constant clock_period      : time    := 1 ns;
     constant simtime_in_clocks : integer := 480;
@@ -37,7 +37,7 @@ begin
 
     stimulus : process(simulator_clock)
 
-        file f : text open write_mode is "lcd_stream_from_vhdl.txt";
+        file f : text open write_mode is "write_sine_to_file_tb.txt";
         variable row : line;
 
     begin

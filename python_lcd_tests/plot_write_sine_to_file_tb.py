@@ -7,7 +7,7 @@ xsize = 480
 ysize = 320
 
 d = np.zeros([ysize,xsize])
-data_from_vhdl = np.loadtxt("../temp/lcd_stream_from_vhdl.txt")
+data_from_vhdl = np.loadtxt("../temp/write_sine_to_file_tb.txt")
 d = add_plot(d, data_from_vhdl, xsize, ysize)
 
 stream_lcd(d, xsize, ysize)

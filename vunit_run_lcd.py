@@ -26,7 +26,7 @@ lcdlibrary.add_source_files(ROOT / "ram/ram_write_port_pkg.vhd")
 lcdlibrary.add_source_files(ROOT / "lcd_spi_driver/lcd_spi_driver_pkg.vhd")
 lcdlibrary.add_source_files(ROOT / "SPI_driver/clock_divider_pkg.vhd")
 
-lcdlibrary.add_source_files(ROOT / "testbenches/plot_sine_tb.vhd")
+lcdlibrary.add_source_files(ROOT / "testbenches/write_sine_to_file_tb.vhd")
 lcdlibrary.add_source_files(ROOT / "testbenches/pixel_position_counter_tb.vhd")
 lcdlibrary.add_source_files(ROOT / "testbenches/lcd_driver_tb.vhd")
 lcdlibrary.add_source_files(ROOT / "testbenches/signal_buffer_tb.vhd")
