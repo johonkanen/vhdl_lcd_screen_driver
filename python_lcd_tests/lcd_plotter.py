@@ -40,5 +40,5 @@ class lcd:
 
         return figure
 
-    def testi(self, data_in, scale):
+    def flip_y_axis(self, data_in, scale):
         return  self.ysize - np.round(data_in * self.ysize/2 * scale + self.ysize/2)
