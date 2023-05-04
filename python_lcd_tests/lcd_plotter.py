@@ -17,8 +17,8 @@ class lcd:
         self.lcdprint(np.resize(data_in,[self.ysize, self.xsize])) 
 
     def stream_from_file_to_lcd(self, filename):
-        testi = np.loadtxt(filename)
-        self.stream_lcd(testi)
+        data_from_file = np.loadtxt(filename)
+        self.stream_lcd(data_from_file)
 
     def add_plot(self, figure, input_buffer):
         for y in range(self.ysize):

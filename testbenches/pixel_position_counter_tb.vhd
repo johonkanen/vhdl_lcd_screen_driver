@@ -52,7 +52,7 @@ begin
 
     stimulus : process(simulator_clock)
 
-        file f : text open write_mode is "pixel_image_stream_from_vhdl.txt";
+        file f : text open write_mode is "pixel_position_counter_tb.txt";
         ------------------------------------------------------------------------
         procedure transmit_pixel
         (
