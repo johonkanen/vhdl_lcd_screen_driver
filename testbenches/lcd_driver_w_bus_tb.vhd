@@ -7,7 +7,7 @@ LIBRARY ieee, std;
     use work.fpga_interconnect_pkg.all;
     use work.image_configuration_pkg.all;
     use work.lcd_driver_pkg.all;
-    use work.lcd_pixel_driver_pkg.all;
+    use work.pixel_position_counter_pkg.all;
 
     use work.ram_read_port_pkg.all;
     use work.ram_write_port_pkg.all;

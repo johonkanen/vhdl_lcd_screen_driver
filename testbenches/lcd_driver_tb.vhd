@@ -7,7 +7,7 @@ LIBRARY ieee, std;
 
     use work.image_configuration_pkg.xmax;
     use work.image_configuration_pkg.ymax;
-    use work.lcd_pixel_driver_pkg.all;
+    use work.pixel_position_counter_pkg.all;
     use work.lcd_driver_pkg.all;
 
 library vunit_lib;

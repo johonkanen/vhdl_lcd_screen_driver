@@ -1,3 +1,4 @@
+#test_lcd_plotter.py
 from lcd_plotter import *
 xsize = 480
 ysize = 320

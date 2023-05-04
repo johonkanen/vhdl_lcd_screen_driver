@@ -6,7 +6,7 @@ library ieee;
     use work.image_configuration_pkg.xmax;
     use work.image_configuration_pkg.ymax;
 
-package lcd_pixel_driver_pkg is
+package pixel_position_counter_pkg is
 
     type intarray is array (integer range 0 to 479) of integer;
     function init_intarray return intarray;
@@ -48,9 +48,9 @@ package lcd_pixel_driver_pkg is
         return boolean;
 
 
-end package lcd_pixel_driver_pkg;
+end package pixel_position_counter_pkg;
 ------------------------------------------------------------------------
-package body lcd_pixel_driver_pkg is
+package body pixel_position_counter_pkg is
 ------------------------------------------------------------------------
 
     procedure update_position
@@ -183,4 +183,4 @@ package body lcd_pixel_driver_pkg is
         
     end init_intarray;
     ------------------------------------------------------------------------
-end package body lcd_pixel_driver_pkg;
+end package body pixel_position_counter_pkg;

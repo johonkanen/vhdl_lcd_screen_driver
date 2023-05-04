@@ -45,8 +45,6 @@ begin
             simulation_counter <= simulation_counter + 1;
             write(row , integer(round(sin(real(simulation_counter)/480.0*15.0*math_pi)*160.0*0.9+160.0)));
             writeline(f , row);
-
-
         end if; -- rising_edge
     end process stimulus;	
 ------------------------------------------------------------------------
